@@ -1,3 +1,12 @@
+import numpy as np
+
+def compute_qkv(X, W_q, W_k, W_v):
+    """Compute Query, Key, Value matrices from input X and weight matrices."""
+    Q = np.dot(X, W_q)
+    K = np.dot(X, W_k)
+    V = np.dot(X, W_v)
+    return Q, K, V
+
 def self_attention(Q, K, V):
     """
     Compute scaled dot-product self-attention.
