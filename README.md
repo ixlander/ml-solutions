@@ -6,3 +6,4 @@ A collection of my solutions to machine learning and coding problems from the fo
 - [NeuraPrep](https://neuraprep.com/questions/)
 - [NeetCode – Machine Learning](https://neetcode.io/practice/practice/coreSkills?topic=Machine%20Learning)
 - [LeetCode](https://leetcode.com/problemset/)
+- [TorchLeet](https://github.com/Exorust/TorchLeet?tab=readme-ov-file#question-set)
