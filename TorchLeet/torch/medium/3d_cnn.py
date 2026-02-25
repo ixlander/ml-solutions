@@ -61,3 +61,52 @@ class MedCNN(nn.Module):
         
         return self.sigmoid(out)
 
+def compute_dice_loss(pred, labels, eps=1e-8):
+    pred_flat = pred.contiguous().view(-1)
+    labels_flat = labels.contiguous().view(-1)
+    
+    intersection = (pred_flat * labels_flat).sum()
+    union = pred_flat.sum() + labels_flat.sum()
+    
+    dice_score = (2. * intersection + eps) / (union + eps)
+    return 1 - dice_score
+
+resnet_model = torchvision.models.resnet18(pretrained=True)
+resnet_backbone = nn.Sequential(*list(resnet_model.children())[:-2])
+
+for param in resnet_backbone.parameters():
+    param.requires_grad = False
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = MedCNN(backbone=resnet_backbone)
+model.to(device)
+print(f"Model loaded on: {device}")
+
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+epochs = 5
+batch_size = 2 
+
+print("\nStarting Training...")
+for epoch in range(epochs):
+    model.train()
+    running_loss = 0.0
+    
+    for i in range(0, len(ct_images), batch_size):
+        inputs = ct_images[i : i + batch_size].to(device)
+        labels = segmentation_masks[i : i + batch_size].to(device)
+        
+        optimizer.zero_grad()
+        
+        pred = model(inputs)
+        loss = compute_dice_loss(pred, labels)
+        
+        loss.backward()
+        optimizer.step()
+        
+        running_loss += loss.item()
+
+    avg_loss = running_loss / (len(ct_images) / batch_size)
+    print(f"Epoch {epoch+1}/{epochs} | Dice Loss: {avg_loss:.4f}")
+
+print("Training Complete.")
